@@ -1,0 +1,6 @@
+#!/usr/bin/env php
+<?php
+
+const MICRO_LOADER = 'artisan';
+
+require __DIR__ . '/vendor/sultanov-solutions/micro/src/loader.php';
