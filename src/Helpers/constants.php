@@ -1,9 +1,11 @@
 <?php
 define('LARAVEL_START', microtime(true));
 
-if (!defined('MICRO_ROOT_DIR')) {
+if (!defined('DS'))
+    define('DS', DIRECTORY_SEPARATOR);
+
+if (!defined('MICRO_ROOT_DIR'))
     define('MICRO_ROOT_DIR', getcwd());
-}
 
 if (!defined('MICRO_SRC_DIR'))
     define('MICRO_SRC_DIR', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'src');
