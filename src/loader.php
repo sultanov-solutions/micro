@@ -1,7 +1,16 @@
 <?php
 use SultanovSolutions\Micro\Base\Index;
 
-$dirs = [getcwd(), 'vendor', 'autoload.php'];
+$dirs = [];
+
+$dirs[] = getcwd();
+
+if (in_array('public', explode(DIRECTORY_SEPARATOR, getcwd())))
+    $dirs[] = '..';
+
+$dirs[] = 'vendor';
+$dirs[] = 'autoload.php';
+
 
 $autoloadFile = implode(DIRECTORY_SEPARATOR, $dirs);
 
