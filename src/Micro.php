@@ -204,6 +204,19 @@ class Micro
             self::$console->writeln('<error>.env file is exist</error>');
         }
 
+        if ( !is_dir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public') )
+        {
+            if ($STUBS_DIR){
+                mkdir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public');
+                copy($STUBS_DIR . DS . 'public'. DS .'index.php', MICRO_ROOT_DIR . DS . 'public' . DS . 'index.php');
+                self::$console->writeln('<info>public folder copied</info>');
+            }
+        }
+        else
+        {
+            self::$console->writeln('<error>public folder is exist</error>');
+        }
+
         exit();
     }
 
