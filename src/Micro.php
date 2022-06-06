@@ -244,7 +244,7 @@ class Micro
         $composer = file_get_contents(MICRO_ROOT_DIR . DS . 'composer.json');
 
         $composer = Str::of($composer)
-            ->replace('package_name', Str::of($package_name)->slug()->lower()->toString())
+            ->replace('package_name', Str::of($package_name)->snake()->slug()->lower()->toString())
             ->replace('%SERVICE_NAME%', Str::of($package_name)->camel()->ucfirst()->toString())
             ->toString();
 
