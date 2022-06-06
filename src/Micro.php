@@ -170,7 +170,7 @@ class Micro
         {
             if ($STUBS_DIR){
                 copy($STUBS_DIR . DIRECTORY_SEPARATOR . 'index.php', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'index.php');
-                self::$console->writeln('<error>Index file copied</error>');
+                self::$console->writeln('<info>Index file copied</info>');
             }
         }
         else
