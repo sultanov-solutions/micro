@@ -67,54 +67,54 @@ class Micro
         */
 
         $app->setBasePath(LARAVEL_ROOT_DIR);
-        $app->useLangPath(LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'lang');
+        $app->useLangPath(LARAVEL_ROOT_DIR . DS . 'lang');
         $app->useEnvironmentPath(MICRO_ROOT_DIR);
         $app->loadEnvironmentFrom('.env');
-        $app->useAppPath(LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'app');
-        $app->useDatabasePath(LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'database');
-        $app->useStoragePath(LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'storage');
+        $app->useAppPath(LARAVEL_ROOT_DIR . DS . 'app');
+        $app->useDatabasePath(LARAVEL_ROOT_DIR . DS . 'database');
+        $app->useStoragePath(LARAVEL_ROOT_DIR . DS . 'storage');
 
-        $app->instance('path', LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'app');
+        $app->instance('path', LARAVEL_ROOT_DIR . DS . 'app');
         $app->instance('path.base', MICRO_ROOT_DIR);
-        $app->instance('path.config', LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'config');
-        $app->instance('path.database', LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'database');
-        $app->instance('path.resources', LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'resources');
-        $app->instance('path.bootstrap', LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'bootstrap');
-        $app->instance('path.storage', LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'storage');
-        $app->instance('path.public', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public');
+        $app->instance('path.config', LARAVEL_ROOT_DIR . DS . 'config');
+        $app->instance('path.database', LARAVEL_ROOT_DIR . DS . 'database');
+        $app->instance('path.resources', LARAVEL_ROOT_DIR . DS . 'resources');
+        $app->instance('path.bootstrap', LARAVEL_ROOT_DIR . DS . 'bootstrap');
+        $app->instance('path.storage', LARAVEL_ROOT_DIR . DS . 'storage');
+        $app->instance('path.public', MICRO_ROOT_DIR . DS . 'public');
 
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'app')) {
-            $app->useAppPath(LARAVEL_ROOT_DIR . DIRECTORY_SEPARATOR . 'app');
-            $app->instance('path', MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'app');
+        if (is_dir(MICRO_SRC_DIR . DS . 'App')) {
+            $app->useAppPath(MICRO_SRC_DIR . DS . 'App');
+            $app->instance('path', MICRO_SRC_DIR . DS . 'App');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Resources' . DIRECTORY_SEPARATOR . 'lang'))
-            $app->useLangPath(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Resources' . DIRECTORY_SEPARATOR . 'lang');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Resources' . DS . 'lang'))
+            $app->useLangPath(MICRO_SRC_DIR . DS . 'Resources' . DS . 'lang');
 
-        if (file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . '.env')) {
+        if (file_exists(MICRO_ROOT_DIR . DS . '.env')) {
             $app->useEnvironmentPath(MICRO_ROOT_DIR);
             $app->loadEnvironmentFrom('.env');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Database')) {
-            $app->useDatabasePath(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Database');
-            $app->instance('path.database', MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Database');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Database')) {
+            $app->useDatabasePath(MICRO_SRC_DIR . DS . 'Database');
+            $app->instance('path.database', MICRO_SRC_DIR . DS . 'Database');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Resources'))
-            $app->instance('path.resources', MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Resources');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Resources'))
+            $app->instance('path.resources', MICRO_SRC_DIR . DS . 'Resources');
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Bootstrap'))
-            $app->instance('path.bootstrap', MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Bootstrap');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Bootstrap'))
+            $app->instance('path.bootstrap', MICRO_SRC_DIR . DS . 'Bootstrap');
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'storage')) {
-            $app->useStoragePath(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Storage');
-            $app->instance('path.storage', MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Storage');
+        if (is_dir(MICRO_SRC_DIR . DS . 'storage')) {
+            $app->useStoragePath(MICRO_SRC_DIR . DS . 'Storage');
+            $app->instance('path.storage', MICRO_SRC_DIR . DS . 'Storage');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Public'))
-            $app->instance('path.storage', MICRO_SRC_DIR . DIRECTORY_SEPARATOR . 'Public');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Public'))
+            $app->instance('path.storage', MICRO_SRC_DIR . DS . 'Public');
 
 
         $app->make('path');
@@ -154,6 +154,9 @@ class Micro
         Route::any('/sanctum/csrf-cookie', fn() => abort(404));
     }
 
+    /**
+     * Update package name & namespace helpers
+     */
     public static function copyStubs()
     {
         $STUBS_DIR = false;
@@ -219,10 +222,6 @@ class Micro
         self::updateFiles($package_name);
     }
 
-    /**
-     * Update package name & namespace helpers
-     */
-
     private static function updateComposerNames($package_name){
         if (!$package_name){
             self::$console->writeln('<error>Package name not set</error>');
@@ -274,5 +273,4 @@ class Micro
 
         self::$console->writeln('<info>'.$filename.' has updated </info>');
     }
-
 }
