@@ -1,8 +1,10 @@
 {
     "name": "sultanov-solutions/micro",
     "require": {
-        "laravel/laravel": "^9.1"
+        "laravel/framework": "^9",
+      "ext-json": "*"
     },
+    "version": "0.0.1",
     "type": "library",
     "license": "MIT",
     "autoload": {
