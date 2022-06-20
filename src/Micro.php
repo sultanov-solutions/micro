@@ -123,18 +123,10 @@ class Micro
         $app->make('path.storage');
 
         $app->booted(function () use ($app) {
-            self::unbindRoute();
             self::loadProviders($app);
         });
 
         return $app;
-    }
-
-    public static function unbindRoute()
-    {
-        Route::any('/', fn() => abort(404));
-        Route::any('/api/user', fn() => abort(404));
-        Route::any('/sanctum/csrf-cookie', fn() => abort(404));
     }
 
     public static function loadProviders(Application $app)
