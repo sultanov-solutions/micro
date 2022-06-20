@@ -8,7 +8,7 @@ use SultanovSolutions\Micro\Core\Http\Kernel as HttpKernel;
 use Illuminate\Contracts\Console\Kernel as ContractsConsoleKernel;
 use Illuminate\Contracts\Debug\ExceptionHandler as ContractsDebugExceptionHandler;
 use Illuminate\Contracts\Http\Kernel as ContractsHttpKernel;
-use Illuminate\Foundation\Application;
+use SultanovSolutions\Micro\Core\Application;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
@@ -126,7 +126,7 @@ class Micro
             self::unbindRoute();
             self::loadProviders($app);
         });
-        
+
         return $app;
     }
 
