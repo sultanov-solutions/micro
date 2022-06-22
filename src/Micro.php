@@ -2,22 +2,21 @@
 
 namespace SultanovSolutions\Micro;
 
-use Illuminate\Console\Command;
-use Illuminate\Foundation\Application;
+use SultanovSolutions\Micro\Core\Console\Kernel as ConsoleKernel;
+use SultanovSolutions\Micro\Core\Exceptions\Handler;
+use SultanovSolutions\Micro\Core\Http\Kernel as HttpKernel;
+use Illuminate\Contracts\Console\Kernel as ContractsConsoleKernel;
+use Illuminate\Contracts\Debug\ExceptionHandler as ContractsDebugExceptionHandler;
+use Illuminate\Contracts\Http\Kernel as ContractsHttpKernel;
+use SultanovSolutions\Micro\Core\Application;
 use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Contracts\Http\Kernel as ContractsHttpKernel;
-use App\Http\Kernel as HttpKernel;
-use Illuminate\Contracts\Console\Kernel as ContractsConsoleKernel;
-use App\Console\Kernel as ConsoleKernel;
-use Illuminate\Contracts\Debug\ExceptionHandler as ContractsDebugExceptionHandler;
-use App\Exceptions\Handler;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\Output;
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR . 'constants.php';
+require __DIR__ . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR . 'functions.php';
 
 class Micro
 {
@@ -25,8 +24,7 @@ class Micro
 
     public static function app($base_path = null): Application
     {
-        if (!$base_path)
-            $base_path = LARAVEL_ROOT_DIR;
+        if (!$base_path) $base_path = LARAVEL_ROOT_DIR;
 
         $app = new Application($base_path);
 
@@ -40,21 +38,24 @@ class Micro
         | incoming requests to this application from both the web and CLI.
         |
         */
-        $app->singleton(
-            ContractsHttpKernel::class,
-            HttpKernel::class
-        );
 
-        $app->singleton(
-            ContractsConsoleKernel::class,
-            ConsoleKernel::class
-        );
+        if (!if_class_exists('Http\Kernel')) {
+            $app->singleton(ContractsHttpKernel::class, HttpKernel::class);
+        } else {
+            $app->singleton(ContractsHttpKernel::class, get_src_class('Http\Kernel'));
+        }
 
-        $app->singleton(
-            ContractsDebugExceptionHandler::class,
-            Handler::class
-        );
+        if (!if_class_exists('Console\Kernel')) {
+            $app->singleton(ContractsConsoleKernel::class, ConsoleKernel::class);
+        } else {
+            $app->singleton(ContractsConsoleKernel::class, get_src_class('Console\Kernel'));
+        }
 
+        if (!if_class_exists('Exceptions\Handler')) {
+            $app->singleton(ContractsDebugExceptionHandler::class, Handler::class);
+        } else {
+            $app->singleton(ContractsDebugExceptionHandler::class, get_src_class('Exceptions\Handler'));
+        }
         /*
         |--------------------------------------------------------------------------
         | Return The Application
@@ -89,8 +90,7 @@ class Micro
             $app->instance('path', MICRO_SRC_DIR . DS . 'App');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DS . 'Resources' . DS . 'lang'))
-            $app->useLangPath(MICRO_SRC_DIR . DS . 'Resources' . DS . 'lang');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Resources' . DS . 'lang')) $app->useLangPath(MICRO_SRC_DIR . DS . 'Resources' . DS . 'lang');
 
         if (file_exists(MICRO_ROOT_DIR . DS . '.env')) {
             $app->useEnvironmentPath(MICRO_ROOT_DIR);
@@ -102,19 +102,16 @@ class Micro
             $app->instance('path.database', MICRO_SRC_DIR . DS . 'Database');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DS . 'Resources'))
-            $app->instance('path.resources', MICRO_SRC_DIR . DS . 'Resources');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Resources')) $app->instance('path.resources', MICRO_SRC_DIR . DS . 'Resources');
 
-        if (is_dir(MICRO_SRC_DIR . DS . 'Bootstrap'))
-            $app->instance('path.bootstrap', MICRO_SRC_DIR . DS . 'Bootstrap');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Bootstrap')) $app->instance('path.bootstrap', MICRO_SRC_DIR . DS . 'Bootstrap');
 
         if (is_dir(MICRO_SRC_DIR . DS . 'storage')) {
             $app->useStoragePath(MICRO_SRC_DIR . DS . 'Storage');
             $app->instance('path.storage', MICRO_SRC_DIR . DS . 'Storage');
         }
 
-        if (is_dir(MICRO_SRC_DIR . DS . 'Public'))
-            $app->instance('path.storage', MICRO_SRC_DIR . DS . 'Public');
+        if (is_dir(MICRO_SRC_DIR . DS . 'Public')) $app->instance('path.storage', MICRO_SRC_DIR . DS . 'Public');
 
 
         $app->make('path');
@@ -126,7 +123,6 @@ class Micro
         $app->make('path.storage');
 
         $app->booted(function () use ($app) {
-            self::unbindRoute();
             self::loadProviders($app);
         });
 
@@ -138,20 +134,12 @@ class Micro
         $manifest = $app->make(PackageManifest::class);
         $manifest->vendorPath = MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'vendor';
 
-        $composerFile = json_decode(file_get_contents(MICRO_ROOT_DIR.DIRECTORY_SEPARATOR.'composer.json'), 1);
-        if (isset($composerFile['extra'],$composerFile['extra']['laravel'],$composerFile['extra']['laravel']['providers'])){
+        $composerFile = json_decode(file_get_contents(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'composer.json'), 1);
+        if (isset($composerFile['extra'], $composerFile['extra']['laravel'], $composerFile['extra']['laravel']['providers'])) {
             $providers = $composerFile['extra']['laravel']['providers'];
-            foreach ($providers as $provider)
-                $app->register($provider);
+            foreach ($providers as $provider) $app->register($provider);
         }
         $manifest->build();
-    }
-
-    public static function unbindRoute()
-    {
-        Route::any('/', fn() => abort(404));
-        Route::any('/api/user', fn() => abort(404));
-        Route::any('/sanctum/csrf-cookie', fn() => abort(404));
     }
 
     /**
@@ -163,68 +151,58 @@ class Micro
 
         self::$console = new ConsoleOutput();
 
-        if ( is_dir(implode(DIRECTORY_SEPARATOR, [MICRO_VENDOR_DIR,'Stubs']) ) )
-        {
-            $STUBS_DIR = implode(DIRECTORY_SEPARATOR, [MICRO_VENDOR_DIR,'Stubs']);
+        if (is_dir(implode(DIRECTORY_SEPARATOR, [MICRO_VENDOR_DIR, 'Stubs']))) {
+            $STUBS_DIR = implode(DIRECTORY_SEPARATOR, [MICRO_VENDOR_DIR, 'Stubs']);
         }
 
 
-        if ( !file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'index.php') )
-        {
-            if ($STUBS_DIR){
+        if (!file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'index.php')) {
+            if ($STUBS_DIR) {
                 copy($STUBS_DIR . DIRECTORY_SEPARATOR . 'index.php', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'index.php');
                 self::$console->writeln('<info>Index file copied</info>');
             }
-        }
-        else
-        {
+        } else {
             self::$console->writeln('<error>Index file is exist</error>');
         }
 
 
-        if ( !file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'artisan') ){
-            if ($STUBS_DIR){
+        if (!file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'artisan')) {
+            if ($STUBS_DIR) {
                 copy($STUBS_DIR . DIRECTORY_SEPARATOR . 'artisan', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'artisan');
                 self::$console->writeln('<info>Artisan file copied</info>');
             }
-        }
-        else
-        {
+        } else {
             self::$console->writeln('<error>Artisan file is exist</error>');
         }
 
-        if ( !file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . '.env') ){
-            if ($STUBS_DIR){
+        if (!file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . '.env')) {
+            if ($STUBS_DIR) {
                 copy(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . '.env.example', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . '.env');
                 self::$console->writeln('<info>.env file copied</info>');
             }
-        }
-        else
-        {
+        } else {
             self::$console->writeln('<error>.env file is exist</error>');
         }
 
-        if ( !is_dir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public') )
-        {
-            if ($STUBS_DIR){
+        if (!is_dir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public')) {
+            if ($STUBS_DIR) {
                 mkdir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public');
-                copy($STUBS_DIR . DS . 'public'. DS .'index.php', MICRO_ROOT_DIR . DS . 'public' . DS . 'index.php');
+                copy($STUBS_DIR . DS . 'public' . DS . 'index.php', MICRO_ROOT_DIR . DS . 'public' . DS . 'index.php');
                 self::$console->writeln('<info>public folder copied</info>');
             }
-        }
-        else
-        {
+        } else {
             self::$console->writeln('<error>public folder is exist</error>');
         }
 
         exit();
     }
 
-    public static function setPackageName(){
+    public static function setPackageName()
+    {
 
         self::$console = new ConsoleOutput();
 
-        if (!isset($_SERVER['argv'][2]) || empty(trim($_SERVER['argv'][2]))){
+        if (!isset($_SERVER['argv'][2]) || empty(trim($_SERVER['argv'][2]))) {
             self::$console->writeln('<error>Package name not set</error>');
             exit();
         }
@@ -235,55 +213,52 @@ class Micro
         self::updateFiles($package_name);
     }
 
-    private static function updateComposerNames($package_name){
-        if (!$package_name){
+    private static function updateComposerNames($package_name)
+    {
+        if (!$package_name) {
             self::$console->writeln('<error>Package name not set</error>');
             exit();
         }
 
         $composer = file_get_contents(MICRO_ROOT_DIR . DS . 'composer.json');
 
-        $composer = Str::of($composer)
-            ->replace('package_name', Str::of($package_name)->snake()->slug()->lower()->toString())
-            ->replace('%SERVICE_NAME%', Str::of($package_name)->camel()->ucfirst()->toString())
-            ->toString();
+        $composer = Str::of($composer)->replace('package_name', Str::of($package_name)->snake()->slug()->lower()->toString())->replace('%SERVICE_NAME%', Str::of($package_name)->camel()->ucfirst()->toString())->toString();
 
         file_put_contents(MICRO_ROOT_DIR . DS . 'composer.json', $composer);
 
         self::$console->writeln('<info>composer.json has updated</info>');
     }
 
-    private static function updateFiles($package_name){
-        if (!$package_name){
+    private static function updateFiles($package_name)
+    {
+        if (!$package_name) {
             self::$console->writeln('<error>Package name not set</error>');
             exit();
         }
         self::scanDir(MICRO_SRC_DIR, $package_name);
     }
 
-    private static function scanDir($startDir, $package_name){
+    private static function scanDir($startDir, $package_name)
+    {
         $dirs = Collection::make(scandir($startDir))->filter(fn($d) => !in_array($d, ['.', '..']));
 
-        foreach ($dirs as $dir)
-        {
-            if ( is_file($startDir . DS . $dir) )
-            {
+        foreach ($dirs as $dir) {
+            if (is_file($startDir . DS . $dir)) {
                 self::updateFileNameSpace($startDir . DS . $dir, $package_name);
-            }
-            elseif(is_dir($startDir . DS . $dir))
-            {
+            } elseif (is_dir($startDir . DS . $dir)) {
                 self::scanDir($startDir . DS . $dir, $package_name);
             }
         }
     }
 
-    private static function updateFileNameSpace($filename, $package_name){
+    private static function updateFileNameSpace($filename, $package_name)
+    {
         $file = file_get_contents($filename);
 
-        $file = Str::of($file)->replace('%SERVICE_NAME%',Str::of($package_name)->camel()->ucfirst()->toString())->toString();
+        $file = Str::of($file)->replace('%SERVICE_NAME%', Str::of($package_name)->camel()->ucfirst()->toString())->toString();
 
         file_put_contents($filename, $file);
 
-        self::$console->writeln('<info>'.$filename.' has updated </info>');
+        self::$console->writeln('<info>' . $filename . ' has updated </info>');
     }
 }
