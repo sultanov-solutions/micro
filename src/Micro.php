@@ -186,7 +186,7 @@ class Micro
 
         if (!file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml')) {
             if ($STUBS_DIR) {
-                copy(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml');
+                copy($STUBS_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml');
                 self::$console->writeln('<info>phpcs.xml copied</info>');
             }
         } else {
