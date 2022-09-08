@@ -184,6 +184,15 @@ class Micro
             self::$console->writeln('<error>.env file is exist</error>');
         }
 
+        if (!file_exists(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml')) {
+            if ($STUBS_DIR) {
+                copy(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml', MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'phpcs.xml');
+                self::$console->writeln('<info>phpcs.xml copied</info>');
+            }
+        } else {
+            self::$console->writeln('<error>phpcs.xml file is exist</error>');
+        }
+
         if (!is_dir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public')) {
             if ($STUBS_DIR) {
                 mkdir(MICRO_ROOT_DIR . DIRECTORY_SEPARATOR . 'public');
