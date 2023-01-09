@@ -106,7 +106,7 @@ class Micro
 
         if (is_dir(MICRO_SRC_DIR . DS . 'Bootstrap')) $app->instance('path.bootstrap', MICRO_SRC_DIR . DS . 'Bootstrap');
 
-        if (is_dir(MICRO_SRC_DIR . DS . 'storage')) {
+        if (is_dir(MICRO_SRC_DIR . DS . 'Storage')) {
             $app->useStoragePath(MICRO_SRC_DIR . DS . 'Storage');
             $app->instance('path.storage', MICRO_SRC_DIR . DS . 'Storage');
         }
